@@ -2,6 +2,8 @@
 
 namespace BusinessRulesKata;
 
+
+
 final class OrderProcessingApplicationTest extends \PHPUnit_Framework_TestCase
 {
     /** @test */
@@ -16,43 +18,26 @@ final class OrderProcessingApplicationTest extends \PHPUnit_Framework_TestCase
 
         has_generated(packing_slip::for_shipping, $app->generate_packing_slip(payment::for_non_physical_product));
     }
+
     /** @test */
-    public function first_rule_with_opposite_input()
+    public function second_rule()
     {
         $app = new OrderProcessingApplication();
 
-        // If the payment is for a physical product, generate a packing slip for shipping.
-        has_generated(packing_slip::for_shipping, $app->generate_packing_slip(payment::for_physical_product));
+        // If the payment is for a book, create a duplicate packing slip for the royalty department.
+        has_generated(two(packing_slip::for_royalty_department), $app->generate_packing_slip(payment::for_a_book));
     }
+}
 
-    //private function discarded_ideas()
-    //{
-    //    $app = new OrderProcessingApplication();
-    //    $payment = payment::for_physical_product();
-    //
-    //    // If the payment is for a physical product, generate a packing slip for shipping.
-    //    $app->generate_packing_slip_for_shipping_if_the_payment_is_for_a_physical_product();
-    //    $app->generate(packing_slip::for_shipping())->if($payment->is_for_a_physical_product());
-    //    if ($payment->is_for_a_physical_product()) $app->generate(packing_slip::for_shipping());
-    //
-    //    // If the payment is for a physical product, generate a packing slip for shipping.
-    //    $it  = new OrderProcessingApplication();
-    //    $it->generate_packing_slip_for_shipping_if_the_payment_is_for_a_physical_product();
-    //    $it->generate(packing_slip::for_shipping())->if($payment->is_for_a_physical_product());
-    //    if ($payment->is_for_a_physical_product()) $it->generate(packing_slip::for_shipping());
-    //
-    //    $this->assertInstanceOf(
-    //            PackingSlipForShipping::class,
-    //            $app->generate_packing_slip_for_shipping_if_the_payment_is_for_a_physical_product()
-    //    );
-    //}
+function has_generated($expected, $result)
+{
+    foreach (is_array($expected) ? $expected : [$expected] as $expectation) {
+        if ($expectation !== $result) {
+            throw new \DomainException("{$expectation} has not been generated ({$result} given)");
+        }
+    }
+}
 
-    ///** @test */
-    //public function second_rule()
-    //{
-    //    $this->assertInstanceOf(
-    //        DuplicateSlipForTheRoyaltyDepartment::class,
-    //        if_the_payment_is_for_a_book_create_a_duplicate_packing_slip_for_the_royalty_department()
-    //    );
-    //}
+function two($expectation) {
+    return [$expectation, $expectation];
 }
